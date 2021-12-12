@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "process_generator.h": "c",
+        "headers.h": "c",
+        "priority_queue.h": "c"
+    }
+}
