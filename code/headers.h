@@ -16,7 +16,7 @@
 
 typedef short bool;
 #define true 1
-#define false 1
+#define false 0
 
 #define SHKEY 300
 
@@ -66,10 +66,22 @@ process create_process(int identity,int arrival_time, int runtime, int priority)
     tmp_p->priority=priority;
     return *tmp_p;
 }
+
+
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++Message queues +++++++++++++++++++++++++++++++++++++++++*/
 
 #define MSG_Q_ID 152001
 int msg_queue_id;
+/*
+    message buffer used in messege queues while sending data between processes
+    it included type, and process while includes all necessary data
+*/
+typedef struct msg_buff_
+{
+    long mtype;
+    process prs;
+}msg_buff;
+
 
 /** @brief create messeage queue for certain key
  *          if already created, it return the id

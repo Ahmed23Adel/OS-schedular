@@ -62,7 +62,7 @@ void push(node_priority** head,process prs,int priority);
  *  @param head head of priority queue
  *  @return 1 if empty 0 otherwise .
  */
-int isEmpty(node_priority** head);
+int is_empty(node_priority** head);
 
  /*+++++++++++++++++++++++++++++++++++++++functions implmentations++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 node_priority* _new_priority_node(process prs, int priority)
@@ -76,7 +76,6 @@ node_priority* _new_priority_node(process prs, int priority)
 
 process peek(node_priority** head)
 {
-    //printf("\n inside the peek\n\n");
     return (*head)->process;
 }
 
@@ -109,7 +108,7 @@ void push(node_priority** head,process prs,int priority)
 }
 
 
-int isEmpty(node_priority** head)
+int is_empty(node_priority** head)
 {
     return (*head) == NULL;
 }

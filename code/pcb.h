@@ -22,6 +22,24 @@ void push_to_pcb(node_priority** head,process prs,int priority)
         push(head, prs, priority);
     }
 }
+/** @brief check if top of priority queue arrival time is eqution to current time
+ *          made to create priority queue easier.
+ * 
+ *  @param current_time by getClk()
+ *  @return bool.
+ */
+bool is_top_arvl_tm_now(node_priority** head,int current_time)
+{
+    if(is_empty(head)) return false;
+    if(head ==NULL) return false;
+    //why not ==?
+    //because if at any second, the the prcess gen coldn't work it will now send current process and that will create huge problem
+    if(peek(head).arrival_time<=current_time)
+    {
+        return true;
+    }
+    return false;
+}
 
 
 #endif

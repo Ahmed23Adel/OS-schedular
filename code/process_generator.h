@@ -27,6 +27,11 @@ void _clear_resources_seg_fault(int);  //To catch segmentation faults
  */
 void _fork_clk();
 
+/** @brief forks the schdular 
+ *  @return Void.
+ */
+void _fork_schedular();
+
 /** @brief managing segmentation fault
  *          used while debugging, to stop the clk
  *  @param sig_num input from catching error
@@ -58,4 +63,19 @@ void _read_input_file();
  */
 void _skip_first_line(FILE ** fPointer,char *singleLine);
 
+/** @brief send process at current time to schedular
+ *         through a mesg queue.
+ *  @param cur_time current time given by clk
+ *  @param AlgoPID Algorithm PID
+ *  @return Void.
+ */
+void send_new_prs_to_sch();
+
+/** @brief send process to msg queue
+ *         through a mesg queue.
+ *  @param cur_time current time given by clk
+ *  @param AlgoPID Algorithm PID
+ *  @return Void.
+ */
+void snd_prs_to_sch(process prs);
 #endif
