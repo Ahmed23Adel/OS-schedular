@@ -1,7 +1,9 @@
 #ifndef process_generator_H
 #define process_generator_H
 
+
 int _total_count; //Total count of processes counted from reading a file.
+int schedular_prog_id; //pid of schedular forked to be used in sending signals
 /** @brief ask the used for their preferred algorithm
  *
  *  @return enum of chosed algorithm.
@@ -28,16 +30,16 @@ void _clear_resources_seg_fault(int);  //To catch segmentation faults
 void _fork_clk();
 
 /** @brief forks the schdular 
- *  @return Void.
+ *  @return pid of schedular forked.
  */
-void _fork_schedular();
+int _fork_schedular();
 
 /** @brief managing segmentation fault
  *          used while debugging, to stop the clk
  *  @param sig_num input from catching error
  *  @return Void.
  */
-void _clear_resources_seg_fault(int);  //To catch segmentation faults
+void _clear_resources_seg_fault(int sig_num);  //To catch segmentation faults
 
 /** @brief read input file
  *          and fill pcb
@@ -78,4 +80,10 @@ void send_new_prs_to_sch();
  *  @return Void.
  */
 void snd_prs_to_sch(process prs);
+/** @brief return unique number for algorithms chosen 
+ *         to be sent in execp
+ *  @return int .
+ */
+int get_algo_num();
+
 #endif

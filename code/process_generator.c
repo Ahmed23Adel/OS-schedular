@@ -5,6 +5,7 @@
 
 
 node_priority* head;
+scheduling_algorithms chosen_alg;
 int main(int argc, char * argv[])
 {
     /*++++++++++++++++++++DECLarations++++++++++++++++++++*/
@@ -13,14 +14,14 @@ int main(int argc, char * argv[])
     signal(SIGINT, _clear_resources);
     signal(SIGSEGV, _clear_resources_seg_fault);
     /*++++++++++++++++++++Chosen algorithm +++++++++++++++*/
-    scheduling_algorithms chosen_alg =ask_for_alg();
+    chosen_alg =ask_for_alg();
     /*+++++++++++++++++++Read input files++++++++++++++++*/
     _read_input_file();
     /*++++++++++++++++++++Forking clock++++++++++++++++++*/
     _fork_clk();
     initClk();
     /*++++++++++++++++++++Forking schedular++++++++++++++++++*/
-    //_fork_schedular();
+    schedular_prog_id= _fork_schedular();
     /*++++++++++++++++++++Sending process to schedular ++++++++++++++++++++*/
     while(true)
     {
@@ -121,7 +122,7 @@ void send_new_prs_to_sch()
            is_top_arvl_tm_now(&head,getClk());
            break; 
        }
-        
+
    }
 }
 void snd_prs_to_sch(process prs)
@@ -137,7 +138,7 @@ void snd_prs_to_sch(process prs)
     } 
     else
     {
-        //kill(AlgoPID,SIGUSR1);
+        kill(schedular_prog_id,SIGUSR1);
     }
 }
 
@@ -171,17 +172,36 @@ void _fork_clk()
 }
 
 
-void _fork_schedular()
+int _fork_schedular()
 {
     int pid;
     pid= fork();
     if (pid ==0)
     {
         //Child
-        char *args[]= {"./scheduler.out",NULL};
+        char buffer_c[20]; 
+        sprintf(buffer_c, "%d", _total_count);
+        char buffer_alg[20]; 
+        sprintf(buffer_alg, "%d", get_algo_num());
+        char *args[] = {"./scheduler.out",buffer_c, buffer_alg, NULL};
         execvp(args[0],args);
-
     }
+    else
+    {
+        return pid;
+    }
+}
+
+int get_algo_num()
+{
+    if(chosen_alg ==HPF)
+        return 0;
+    if(chosen_alg ==SRTN)
+        return 1;
+    if(chosen_alg ==RR)
+        return 2;
+
+
 }
 
 

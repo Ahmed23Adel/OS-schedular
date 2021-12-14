@@ -3,6 +3,7 @@
         "process_generator.h": "c",
         "headers.h": "c",
         "priority_queue.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "pcb.h": "c"
     }
 }

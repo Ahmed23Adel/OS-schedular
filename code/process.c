@@ -1,20 +1,45 @@
+/** @file process.c
+ *  @brief it automates a single process, that is only CPU bound
+ *        in real OS, this might be a real process like any prorgram you run.
+ */
+
+
 #include "headers.h"
+#include <time.h>
 
-/* Modify this file as needed*/
+
 int remainingtime;
+int working;
 
-int main(int agrc, char * argv[])
+/** @brief handler to ignore some SIGALRM signal
+ *  @return void.
+ * 
+ */
+void handler(int signum);
+
+
+int main(int agrc, char *argv[])
 {
+    signal(SIGALRM, handler);
     initClk();
-    
-    //TODO it needs to get the remaining time from somewhere
-    //remainingtime = ??;
+    remainingtime = atoi(argv[1]);
+    working = atoi(argv[1]);
+
+    int c;
+    /*
+        While there is still remaining time process must take on CPU continue
+    */
     while (remainingtime > 0)
     {
-        // remainingtime = ??;
+      alarm(1);
+      pause();
+      remainingtime--;
     }
-    
-    destroyClk(false);
-    
+
     return 0;
+}
+
+void handler(int signum)
+{
+
 }

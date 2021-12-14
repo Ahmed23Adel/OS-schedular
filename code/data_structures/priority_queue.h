@@ -86,6 +86,27 @@ void pop(node_priority** head)
     free(temp);
 }
 
+void pop_at_id(node_priority** head, int id)
+{
+    node_priority* temp = *head;
+    node_priority* prev = NULL;
+    if(temp !=NULL && temp->process.identity==id)
+    {
+        (*head) = (*head)->next;
+        free(temp);
+    }
+    while (temp != NULL && temp->process.identity != id) {
+        prev = temp;
+        temp = temp->next;
+    }
+    if (temp == NULL)
+        return;
+        
+    prev->next = temp->next;
+    free(temp);
+
+}
+
 
 void push(node_priority** head,process prs,int priority)
 {
