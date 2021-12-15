@@ -5,6 +5,7 @@
 
 node_priority* ready_priority_q;
 process prs_to_run;
+process prs_currently_running;
 int main(int argc, char * argv[])
 {
     initClk();
@@ -62,6 +63,8 @@ void insert_prs_to_hpf(process prs)
 
 void insert_prs_to_srtn(process prs)
 {
+    printf("Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
+    push_to_pri_q(&ready_priority_q, prs, get_remaining_time(prs));
 
 }
 
@@ -69,7 +72,10 @@ void insert_prs_to_rr(process prs)
 {
 
 }
-
+int get_remaining_time(process prs)
+{
+    return prs.run_time-prs.exec_time;
+}
 process rec_one_procss()
 {
     msg_buff message; // create a message
@@ -89,12 +95,11 @@ process rec_one_procss()
     }
 
 }
-
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++HPF++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void apply_hpf()
 {
     while(true)
     {
-        printf("total_count_prss %d \n",total_count_prss);
         if(!is_empty(&ready_priority_q))
         {
             prs_to_run=peek(&ready_priority_q);
@@ -112,14 +117,107 @@ void apply_hpf()
     }
 }
 
+void execute_process_hpf(process prs)
+{
+    fork_new_prs(&prs);
+    //parent
+    int status;
+    if(wait(&status))
+    {
+        //Done
+        printf("process %d finished at %d \n", prs.identity,getClk());
+    }
+
+}
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SRTN++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
 void apply_srtn()
 {
+    prs_currently_running=create_process(-1,-1,-1,-1);//Indication nothing started yet
     while(true)
     {
-        
+        if(prss_completed==total_count_prss)
+        {
+            killpg(getpgrp(), SIGINT);
+
+        }
+        if(!is_empty(&ready_priority_q))
+        {
+            if(prs_currently_running.identity ==-1)
+            {
+                process prs=get_shortest_in_rem_time(ready_priority_q);
+                execute_process_srtn(&prs);
+                //continue;
+            }
+            else
+            {
+                
+                minus_1_sec(&prs_currently_running); 
+
+                process prs=get_shortest_in_rem_time(ready_priority_q);
+                if(get_remaining_time(prs_currently_running)==0)  
+                {
+                    printf("process %d finished at time %d \n", prs_currently_running.identity, getClk());
+                    pop_at_id(&ready_priority_q, prs_currently_running.identity);
+                    prs_currently_running=create_process(-1,-1,-1,-1);//Indication nothing is running now yet
+                    prss_completed++;
+                    continue;
+                }
+                if(prs.identity ==prs_currently_running.identity)
+                {
+                    //pass
+                }
+                
+                else
+                {
+                    kill(prs_currently_running.prog_id, SIGSTOP);
+                    printf("process %d will paused now at time %d\n", prs_currently_running.identity, getClk());
+                    prs_currently_running=prs;
+                    execute_process_srtn(&prs);
+
+                }
+                
+            }
+        }
+        sleep(1);
     }
 }
+process get_shortest_in_rem_time(node_priority* head)
+{
 
+    return peek(&ready_priority_q);
+    
+}
+void execute_process_srtn(process* prs)
+{
+    if(prs->prog_id ==-1)
+    {
+        fork_new_prs(prs);
+        prs_currently_running=*prs;
+    }
+    else
+    {
+        //forked and just needs to continue
+        kill(prs->prog_id, SIGCONT); 
+        prs_currently_running=*prs;
+        printf("process %d resumed at time %d\n", prs->identity, getClk());
+
+    }
+
+}
+
+void minus_1_sec(process *prs)
+{
+    prs->exec_time=prs->exec_time+1;
+    pop_at_id(&ready_priority_q, prs->identity);
+    push_to_pri_q(&ready_priority_q, *prs, get_remaining_time(*prs));
+}
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++RR++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+void prs_finished(process prs)
+{
+    
+}
 void apply_rr()
 {
     while(true)
@@ -128,7 +226,8 @@ void apply_rr()
     }
 }
 
-void execute_process_hpf(process prs)
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++Common++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+void fork_new_prs(process* prs)
 {
     int pid;
     pid=fork();
@@ -138,22 +237,16 @@ void execute_process_hpf(process prs)
         char buffer[15]; // Runtime int-->string
         sprintf(buffer, "%d", prs_to_run.run_time);
         char *argv[] = {"process.out", buffer, NULL};
-        printf("process %d started at %d \n", prs.identity,getClk());
+        printf("process %d started at %d \n", prs->identity,getClk());
         execv("process.out", argv);
         exit(EXIT_SUCCESS);
     }
     else
     {
-        //parent
-        int status;
-        if(wait(&status))
-        {
-            //Done
-            printf("process %d finished at %d \n", prs.identity,getClk());
-        }
-
+        printf("program id is updated to %d\n", pid);
+        prs->prog_id=pid;
     }
-
-
 }
+
+
 

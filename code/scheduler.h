@@ -85,4 +85,34 @@ void insert_prs_to_rr(process prs);
  */
 void execute_process_hpf(process prs);
 
+/** @brief calcuate the remaining time for process
+ *  @return remaining time for process .
+ */
+int get_remaining_time(process prs);
+
+
+/** @brief just peek but redifined it for calrity
+ *  @return process .
+ */
+process get_shortest_in_rem_time(node_priority* head);
+
+/** @brief executre process, but should be used only by srtn algorithm
+ *          as it does extra work for SRTN algorith
+ *  @return void .
+ */
+void execute_process_srtn(process* prs);
+
+/** @brief it just forks new process 
+ *  @return void .
+ */
+void fork_new_prs(process* prs);
+
+/** @brief it adds one second to exec time to 
+ *          currenly running process, update its priority
+ *  @return void .
+ */
+void minus_1_sec(process *prs);
+
+void prs_finished(process prs);
+
 #endif
