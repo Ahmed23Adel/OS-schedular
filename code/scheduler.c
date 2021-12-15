@@ -104,9 +104,8 @@ void apply_hpf()
         {
             prs_to_run=peek(&ready_priority_q);
             execute_process_hpf(prs_to_run);
-            prss_completed++;
+            prs_finished(prs_to_run);
             pop_at_id(&ready_priority_q, prs_to_run.identity);
-            printf("%d completed \n", prss_completed);
         }
         if(prss_completed==total_count_prss)
         {
@@ -158,9 +157,10 @@ void apply_srtn()
                 if(get_remaining_time(prs_currently_running)==0)  
                 {
                     printf("process %d finished at time %d \n", prs_currently_running.identity, getClk());
+                    prs_finished(prs_currently_running);
                     pop_at_id(&ready_priority_q, prs_currently_running.identity);
                     prs_currently_running=create_process(-1,-1,-1,-1);//Indication nothing is running now yet
-                    prss_completed++;
+                    
                     continue;
                 }
                 if(prs.identity ==prs_currently_running.identity)
@@ -216,7 +216,11 @@ void minus_1_sec(process *prs)
 
 void prs_finished(process prs)
 {
-    
+    prs.finish_time=getClk();
+    prs.exec_time=prs.run_time;
+    prs.curr_state=FINISHED;
+    prss_completed ++;
+    printf("%d completed\n", prss_completed);
 }
 void apply_rr()
 {
