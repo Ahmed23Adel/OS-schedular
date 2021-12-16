@@ -6,10 +6,12 @@
 
 node_priority* head;
 scheduling_algorithms chosen_alg;
+int quanta;
 int main(int argc, char * argv[])
 {
     /*++++++++++++++++++++DECLarations++++++++++++++++++++*/
     head=NULL;
+    quanta=0;
     /*++++++++++++++++++++Signal handlers+++++++++++++++++*/
     signal(SIGINT, _clear_resources);
     signal(SIGSEGV, _clear_resources_seg_fault);
@@ -25,7 +27,7 @@ int main(int argc, char * argv[])
     /*++++++++++++++++++++Sending process to schedular ++++++++++++++++++++*/
     while(true)
     {
-        printf("Current clock: %d in seconds\n",getClk());
+        //printf("Current clock: %d in seconds\n",getClk());
         send_new_prs_to_sch();
         sleep(1);
     }
@@ -57,7 +59,9 @@ scheduling_algorithms ask_for_alg()
             return SRTN;
             break;
         case 3:
-            printf("Working with RR, Round robin \n");
+            printf("Please specity quanta for RR!! \n");
+            scanf("%i", &quanta);
+            printf("Working with RR, Round robin with quanta equal to %d\n", quanta);
             return RR;
             break;
         
@@ -183,7 +187,9 @@ int _fork_schedular()
         sprintf(buffer_c, "%d", _total_count);
         char buffer_alg[20]; 
         sprintf(buffer_alg, "%d", get_algo_num());
-        char *args[] = {"./scheduler.out",buffer_c, buffer_alg, NULL};
+        char buffer_quanta[20]; 
+        sprintf(buffer_quanta, "%d", quanta);
+        char *args[] = {"./scheduler.out",buffer_c, buffer_alg,buffer_quanta, NULL};
         execvp(args[0],args);
     }
     else

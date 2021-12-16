@@ -112,7 +112,29 @@ void fork_new_prs(process* prs);
  *  @return void .
  */
 void minus_1_sec(process *prs);
-
+/** @brief must be called when process finishs
+ *         it adds one to prss_complmted to used later 
+ *          as indication for all processes are done
+ *  @return void .
+ */
 void prs_finished(process prs);
+/** @brief like minus_1_sec but it does on data strucutre related to RR
+ *          circular queue 
+ *  @return void .
+ */
+void cq_minus_1_sec(process *prs);
+/** @brief suspend process, just sends SIGSTOP, and enqueu the process again to circular queue
+ *  @return void .
+ */
+void cq_suspend_process(process *prs);
+/** @brief run the top of circular queue
+ *  @return void .
+ */
+void cq_run_top();
+/** @brief for Debugging, i print output to output.txt. might be removed when i'm done debuggint
+ *          it just closes the file opened to write output in it.
+ *  @return void .
+ */
+void  interrupt_handler(int signum);
 
 #endif

@@ -1,23 +1,32 @@
 #include "headers.h"
 #include "scheduler.h"
 #include "data_structures/priority_queue.h"
+#include "data_structures/circular_queue.h"
 
 
 node_priority* ready_priority_q;
 process prs_to_run;
 process prs_currently_running;
+int quanta;
+int rem_quanta;
+FILE * pFile;
 int main(int argc, char * argv[])
 {
+    
+    pFile = fopen("debugging.txt", "w");   
+
     initClk();
     /*+++++++++++++++++++++++++ recieving some values from process generator+++++++++++++++++++++++++++*/
     total_count_prss= atoi(argv[1]);
     alg_num = atoi(argv[2]);
+    quanta= atoi(argv[3]);
     set_alg_enum(alg_num);
     /*++++++++++++++++++++++Intializations+++++++++++++++++*/
     prss_completed=0;
     ready_priority_q=NULL;
     /*++++++++++++++++++++++++++siganls handlers+++++++++++++++++++++++++*/
     signal(SIGUSR1, rec_handler);
+    signal(SIGINT, interrupt_handler);
     /*+++++++++++++++++++++++apply specified algorith++++++++++++++++++*/
     if(chosen_alg ==HPF)
         apply_hpf();
@@ -27,6 +36,11 @@ int main(int argc, char * argv[])
         apply_rr();
 
     destroyClk(true);
+}
+void  interrupt_handler(int signum)
+{
+    fclose(pFile);
+    exit(EXIT_FAILURE);
 }
 
 void set_alg_enum(int alg_num)
@@ -57,20 +71,24 @@ void rec_handler(int signum)
 }
 void insert_prs_to_hpf(process prs)
 {
-    printf("Process %d received at time: %d \n", prs.identity, getClk());
+    //printf("Process %d received at time: %d \n", prs.identity, getClk());
+    fprintf(pFile, "Process %d received at time: %d \n", prs.identity, getClk());
     push_to_pri_q(&ready_priority_q, prs, prs.priority);
 }
 
 void insert_prs_to_srtn(process prs)
 {
-    printf("Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
+    //printf("Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
+    fprintf(pFile, "Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
     push_to_pri_q(&ready_priority_q, prs, get_remaining_time(prs));
 
 }
 
 void insert_prs_to_rr(process prs)
 {
-
+    //printf("Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
+    fprintf(pFile, "Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
+    cq_enqueue(prs);
 }
 int get_remaining_time(process prs)
 {
@@ -111,7 +129,7 @@ void apply_hpf()
         {
             killpg(getpgrp(), SIGINT);
         }
-        sleep(1);
+        //sleep(1);
        
     }
 }
@@ -121,10 +139,13 @@ void execute_process_hpf(process prs)
     fork_new_prs(&prs);
     //parent
     int status;
+    fprintf(pFile, "process %d started at %d \n", prs.identity,getClk());
     if(wait(&status))
     {
         //Done
-        printf("process %d finished at %d \n", prs.identity,getClk());
+        //printf("process %d finished at %d \n", prs.identity,getClk());
+        fprintf(pFile, "process %d finished at %d \n", prs.identity,getClk());
+
     }
 
 }
@@ -156,7 +177,9 @@ void apply_srtn()
                 process prs=get_shortest_in_rem_time(ready_priority_q);
                 if(get_remaining_time(prs_currently_running)==0)  
                 {
-                    printf("process %d finished at time %d \n", prs_currently_running.identity, getClk());
+                    //printf("process %d finished at time %d \n", prs_currently_running.identity, getClk());
+                    fprintf(pFile, "process %d finished at time %d \n", prs_currently_running.identity, getClk());
+
                     prs_finished(prs_currently_running);
                     pop_at_id(&ready_priority_q, prs_currently_running.identity);
                     prs_currently_running=create_process(-1,-1,-1,-1);//Indication nothing is running now yet
@@ -171,7 +194,8 @@ void apply_srtn()
                 else
                 {
                     kill(prs_currently_running.prog_id, SIGSTOP);
-                    printf("process %d will paused now at time %d\n", prs_currently_running.identity, getClk());
+                    //printf("process %d will paused now at time %d\n", prs_currently_running.identity, getClk());
+                    fprintf(pFile, "process %d will paused now at time %d\n", prs_currently_running.identity, getClk());
                     prs_currently_running=prs;
                     execute_process_srtn(&prs);
 
@@ -179,6 +203,7 @@ void apply_srtn()
                 
             }
         }
+        fprintf(pFile, "current time : %d\n", getClk());
         sleep(1);
     }
 }
@@ -192,6 +217,7 @@ void execute_process_srtn(process* prs)
 {
     if(prs->prog_id ==-1)
     {
+        fprintf(pFile, "process %d start at time %d\n", prs->identity, getClk());
         fork_new_prs(prs);
         prs_currently_running=*prs;
     }
@@ -200,8 +226,8 @@ void execute_process_srtn(process* prs)
         //forked and just needs to continue
         kill(prs->prog_id, SIGCONT); 
         prs_currently_running=*prs;
-        printf("process %d resumed at time %d\n", prs->identity, getClk());
-
+        //printf("process %d resumed at time %d\n", prs->identity, getClk());
+        fprintf(pFile, "process %d resumed at time %d\n", prs->identity, getClk());
     }
 
 }
@@ -220,16 +246,102 @@ void prs_finished(process prs)
     prs.exec_time=prs.run_time;
     prs.curr_state=FINISHED;
     prss_completed ++;
-    printf("%d completed\n", prss_completed);
+    //printf("process %d finished at time %d\n", prs.identity, getClk());
+    fprintf(pFile, "process %d finished at time %d\n", prs.identity, getClk());
+    //printf("%d completed\n", prss_completed);
+    fprintf(pFile, "%d completed\n", prss_completed);
 }
 void apply_rr()
 {
+    
+    initClk();
+    printf("I'm in RR at time %d \n", getClk());
+    prs_currently_running=create_process(-1,-1,-1,-1);//Indication nothing started yet
+    rem_quanta=quanta;
     while(true)
     {
+        if(prss_completed==total_count_prss)
+        {
+             killpg(getpgrp(), SIGINT);
+        }
+        if(cq_is_empty() && get_remaining_time(prs_currently_running)==0)
+        {
+            prs_finished(prs_currently_running);
+            prs_currently_running=create_process(-1,-1,-1,-1);
+        }
+        if(cq_is_empty()&& rem_quanta == -1)
+        {
+            rem_quanta=quanta;
+        }
+        if(!cq_is_empty())
+        {
+            if(prs_currently_running.identity ==-1)
+            {
+                rem_quanta=quanta;
+                cq_run_top();
+                
+            }
+            else
+            {
+                if(rem_quanta==0)
+                {
+                    fprintf(pFile, "remtime =0 \n");
+                    if(get_remaining_time(prs_currently_running)==0)
+                    {
+                        //it should finish now
+                        prs_finished(prs_currently_running);
+                        //prs_currently_running=create_process(-1,-1,-1,-1);
+                        cq_run_top();
+                    }
+                    else
+                    {
+                        fprintf(pFile, "else \n");
+                        //quanta is finihsed but process still needs some time.
+                        cq_suspend_process(&prs_currently_running);
+                        cq_run_top();
+                        //prs_currently_running=create_process(-1,-1,-1,-1);
+                    }
+                }
+                else if(get_remaining_time(prs_currently_running)==0)
+                {
+                    //prs finished before qunata finishes
+                    prs_finished(prs_currently_running);
+                    cq_run_top();
+                    //prs_currently_running=create_process(-1,-1,-1,-1);
+                }
+
+            }
+        }
         
+        sleep(1);
+        fprintf(pFile, "current time : %d\n", getClk());
+        printf("current time : %d\n", getClk());
+        rem_quanta=rem_quanta-1;
+        fprintf(pFile, "rem_quanta =%d \n", rem_quanta);
+        cq_minus_1_sec(&prs_currently_running);
     }
 }
 
+void cq_minus_1_sec(process *prs)
+{
+    prs->exec_time =prs->exec_time+1;
+}
+
+void cq_suspend_process(process *prs)
+{
+    fprintf(pFile, "prs %d stopped at time %d \n", prs->identity, getClk());
+    kill(prs->prog_id, SIGSTOP);
+    cq_enqueue(*prs);
+}
+
+void cq_run_top()
+{
+   
+    prs_currently_running=cq_dequeue();
+    rem_quanta=quanta;
+    execute_process_srtn(&prs_currently_running);
+    fprintf(pFile, "run top, process %d started at time%d \n",prs_currently_running.identity, getClk() );
+}
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++Common++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void fork_new_prs(process* prs)
 {
@@ -241,13 +353,14 @@ void fork_new_prs(process* prs)
         char buffer[15]; // Runtime int-->string
         sprintf(buffer, "%d", prs_to_run.run_time);
         char *argv[] = {"process.out", buffer, NULL};
-        printf("process %d started at %d \n", prs->identity,getClk());
+        //printf("process %d started at %d \n", prs->identity,getClk());
+        fprintf(pFile, "process %d started at %d \n", prs->identity,getClk());
         execv("process.out", argv);
         exit(EXIT_SUCCESS);
     }
     else
     {
-        printf("program id is updated to %d\n", pid);
+        fprintf(pFile, "program id is updated to %d\n", pid);
         prs->prog_id=pid;
     }
 }

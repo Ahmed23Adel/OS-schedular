@@ -4,6 +4,7 @@
         "headers.h": "c",
         "priority_queue.h": "c",
         "types.h": "c",
-        "pcb.h": "c"
+        "pcb.h": "c",
+        "stdio.h": "c"
     }
 }
