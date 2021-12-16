@@ -137,4 +137,6 @@ void cq_run_top();
  */
 void  interrupt_handler(int signum);
 
+void sleep_1_sec();
+
 #endif

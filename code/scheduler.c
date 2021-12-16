@@ -71,14 +71,14 @@ void rec_handler(int signum)
 }
 void insert_prs_to_hpf(process prs)
 {
-    //printf("Process %d received at time: %d \n", prs.identity, getClk());
+    printf("Process %d received at time: %d \n", prs.identity, getClk());
     fprintf(pFile, "Process %d received at time: %d \n", prs.identity, getClk());
     push_to_pri_q(&ready_priority_q, prs, prs.priority);
 }
 
 void insert_prs_to_srtn(process prs)
 {
-    //printf("Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
+    printf("Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
     fprintf(pFile, "Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
     push_to_pri_q(&ready_priority_q, prs, get_remaining_time(prs));
 
@@ -86,7 +86,7 @@ void insert_prs_to_srtn(process prs)
 
 void insert_prs_to_rr(process prs)
 {
-    //printf("Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
+    printf("Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
     fprintf(pFile, "Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
     cq_enqueue(prs);
 }
@@ -177,7 +177,7 @@ void apply_srtn()
                 process prs=get_shortest_in_rem_time(ready_priority_q);
                 if(get_remaining_time(prs_currently_running)==0)  
                 {
-                    //printf("process %d finished at time %d \n", prs_currently_running.identity, getClk());
+                    printf("process %d finished at time %d \n", prs_currently_running.identity, getClk());
                     fprintf(pFile, "process %d finished at time %d \n", prs_currently_running.identity, getClk());
 
                     prs_finished(prs_currently_running);
@@ -194,7 +194,7 @@ void apply_srtn()
                 else
                 {
                     kill(prs_currently_running.prog_id, SIGSTOP);
-                    //printf("process %d will paused now at time %d\n", prs_currently_running.identity, getClk());
+                    printf("process %d will paused now at time %d\n", prs_currently_running.identity, getClk());
                     fprintf(pFile, "process %d will paused now at time %d\n", prs_currently_running.identity, getClk());
                     prs_currently_running=prs;
                     execute_process_srtn(&prs);
@@ -203,8 +203,10 @@ void apply_srtn()
                 
             }
         }
+
+        sleep_1_sec();
         fprintf(pFile, "current time : %d\n", getClk());
-        sleep(1);
+        printf("current time : %d\n", getClk());
     }
 }
 process get_shortest_in_rem_time(node_priority* head)
@@ -217,6 +219,7 @@ void execute_process_srtn(process* prs)
 {
     if(prs->prog_id ==-1)
     {
+        printf("process %d start at time %d\n", prs->identity, getClk());
         fprintf(pFile, "process %d start at time %d\n", prs->identity, getClk());
         fork_new_prs(prs);
         prs_currently_running=*prs;
@@ -226,7 +229,7 @@ void execute_process_srtn(process* prs)
         //forked and just needs to continue
         kill(prs->prog_id, SIGCONT); 
         prs_currently_running=*prs;
-        //printf("process %d resumed at time %d\n", prs->identity, getClk());
+        printf("process %d resumed at time %d\n", prs->identity, getClk());
         fprintf(pFile, "process %d resumed at time %d\n", prs->identity, getClk());
     }
 
@@ -246,9 +249,9 @@ void prs_finished(process prs)
     prs.exec_time=prs.run_time;
     prs.curr_state=FINISHED;
     prss_completed ++;
-    //printf("process %d finished at time %d\n", prs.identity, getClk());
+    printf("process %d finished at time %d\n", prs.identity, getClk());
     fprintf(pFile, "process %d finished at time %d\n", prs.identity, getClk());
-    //printf("%d completed\n", prss_completed);
+    printf("%d completed\n", prss_completed);
     fprintf(pFile, "%d completed\n", prss_completed);
 }
 void apply_rr()
@@ -313,7 +316,7 @@ void apply_rr()
             }
         }
         
-        sleep(1);
+        sleep_1_sec();
         fprintf(pFile, "current time : %d\n", getClk());
         printf("current time : %d\n", getClk());
         rem_quanta=rem_quanta-1;
@@ -363,6 +366,147 @@ void fork_new_prs(process* prs)
         fprintf(pFile, "program id is updated to %d\n", pid);
         prs->prog_id=pid;
     }
+}
+
+
+
+void ignore_all_sgnls()
+{
+    signal(SIGHUP, SIG_IGN);
+    signal(SIGINT, SIG_IGN);
+    signal(SIGQUIT,SIG_IGN);
+    signal(SIGILL, SIG_IGN);
+    signal(SIGTRAP,SIG_IGN);
+    signal(SIGABRT,SIG_IGN);
+    signal(SIGBUS, SIG_IGN);
+    signal(SIGFPE, SIG_IGN);
+    signal(SIGKILL,SIG_IGN);
+    signal(SIGUSR1,SIG_IGN);
+    signal(SIGSEGV,SIG_IGN);
+    signal(SIGUSR2, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGALRM, SIG_IGN);
+    signal(SIGTERM, SIG_IGN);
+    signal(SIGSTKFLT, SIG_IGN);
+    signal(SIGCHLD, SIG_IGN);
+    signal(SIGCONT, SIG_IGN);
+    signal(SIGSTOP, SIG_IGN);
+    signal(SIGTSTP, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+    signal(SIGTTOU, SIG_IGN);
+    signal(SIGURG, SIG_IGN);
+    signal(SIGXCPU, SIG_IGN);
+    signal(SIGXFSZ, SIG_IGN);
+    signal(SIGVTALRM, SIG_IGN);
+    signal(SIGPROF, SIG_IGN);
+    signal(SIGWINCH, SIG_IGN);
+    signal(SIGIO, SIG_IGN);
+    signal(SIGPWR, SIG_IGN);
+    signal(SIGSYS, SIG_IGN);
+    signal(SIGRTMIN, SIG_IGN);
+    signal(SIGRTMIN+1, SIG_IGN);
+    signal(SIGRTMIN+2, SIG_IGN);
+    signal(SIGRTMIN+3, SIG_IGN);
+    signal(SIGRTMIN+9, SIG_IGN);
+    signal(SIGRTMIN+10, SIG_IGN);
+    signal(SIGRTMIN+11, SIG_IGN);
+    signal(SIGRTMIN+12, SIG_IGN);
+    signal(SIGRTMIN+13, SIG_IGN);
+    signal(SIGRTMIN+14, SIG_IGN);
+    signal(SIGRTMIN+15, SIG_IGN);
+    signal(SIGRTMAX-14, SIG_IGN);
+    signal(SIGRTMAX-13, SIG_IGN);
+    signal(SIGRTMAX-12, SIG_IGN);
+    signal(SIGRTMAX-11, SIG_IGN);
+    signal(SIGRTMAX-10, SIG_IGN);
+    signal(SIGRTMAX-9, SIG_IGN);
+    signal(SIGRTMAX-8, SIG_IGN);
+    signal(SIGRTMAX-7, SIG_IGN);
+    signal(SIGRTMAX-6, SIG_IGN);
+    signal(SIGRTMAX-5, SIG_IGN);
+    signal(SIGRTMAX-3, SIG_IGN);
+    signal(SIGRTMAX-2, SIG_IGN);
+    signal(SIGRTMAX-1, SIG_IGN);
+    signal(SIGRTMAX, SIG_IGN);
+    
+}
+
+void accept_all_signals()
+{
+    signal(SIGHUP, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT,SIG_DFL);
+    signal(SIGILL, SIG_DFL);
+    signal(SIGTRAP,SIG_DFL);
+    signal(SIGABRT,SIG_DFL);
+    signal(SIGBUS, SIG_DFL);
+    signal(SIGFPE, SIG_DFL);
+    signal(SIGKILL,SIG_DFL);
+    signal(SIGUSR1,SIG_DFL);
+    signal(SIGSEGV,SIG_DFL);
+    signal(SIGUSR2, SIG_DFL);
+    signal(SIGPIPE, SIG_DFL);
+    signal(SIGALRM, SIG_DFL);
+    signal(SIGTERM, SIG_DFL);
+    signal(SIGSTKFLT, SIG_DFL);
+    signal(SIGCHLD, SIG_DFL);
+    signal(SIGCONT, SIG_DFL);
+    signal(SIGSTOP, SIG_DFL);
+    signal(SIGTSTP, SIG_DFL);
+    signal(SIGTTIN, SIG_DFL);
+    signal(SIGTTOU, SIG_DFL);
+    signal(SIGURG, SIG_DFL);
+    signal(SIGXCPU, SIG_DFL);
+    signal(SIGXFSZ, SIG_DFL);
+    signal(SIGVTALRM, SIG_DFL);
+    signal(SIGPROF, SIG_DFL);
+    signal(SIGWINCH, SIG_DFL);
+    signal(SIGIO, SIG_DFL);
+    signal(SIGPWR, SIG_DFL);
+    signal(SIGSYS, SIG_DFL);
+    signal(SIGRTMIN, SIG_DFL);
+    signal(SIGRTMIN+1, SIG_DFL);
+    signal(SIGRTMIN+2, SIG_DFL);
+    signal(SIGRTMIN+3, SIG_DFL);
+    signal(SIGRTMIN+9, SIG_DFL);
+    signal(SIGRTMIN+10, SIG_DFL);
+    signal(SIGRTMIN+11, SIG_DFL);
+    signal(SIGRTMIN+12, SIG_DFL);
+    signal(SIGRTMIN+13, SIG_DFL);
+    signal(SIGRTMIN+14, SIG_DFL);
+    signal(SIGRTMIN+15, SIG_DFL);
+    signal(SIGRTMAX-14, SIG_DFL);
+    signal(SIGRTMAX-13, SIG_DFL);
+    signal(SIGRTMAX-12, SIG_DFL);
+    signal(SIGRTMAX-11, SIG_DFL);
+    signal(SIGRTMAX-10, SIG_DFL);
+    signal(SIGRTMAX-9, SIG_DFL);
+    signal(SIGRTMAX-8, SIG_DFL);
+    signal(SIGRTMAX-7, SIG_DFL);
+    signal(SIGRTMAX-6, SIG_DFL);
+    signal(SIGRTMAX-5, SIG_DFL);
+    signal(SIGRTMAX-3, SIG_DFL);
+    signal(SIGRTMAX-2, SIG_DFL);
+    signal(SIGRTMAX-1, SIG_DFL);
+    signal(SIGRTMAX, SIG_DFL);
+    
+}
+void sleep_1_sec()
+{
+
+    signal(SIGUSR1, SIG_IGN);
+    signal(SIGINT, SIG_IGN);
+
+    sleep(1);
+
+    signal(SIGUSR1, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
+
+    signal(SIGUSR1, rec_handler);
+    signal(SIGINT, interrupt_handler);
+    rec_handler(-1);
+    printf("completed: %d\n" ,prss_completed);
+    printf("Holla!!!!!!!\n");
 }
 
 

@@ -5,6 +5,8 @@
         "priority_queue.h": "c",
         "types.h": "c",
         "pcb.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "wordsize.h": "c",
+        "sigevent-consts.h": "c"
     }
 }
