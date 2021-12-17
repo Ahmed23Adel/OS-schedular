@@ -10,6 +10,7 @@ process prs_currently_running;
 int quanta;
 int rem_quanta;
 FILE * pFile;
+FILE *logFile;
 int main(int argc, char * argv[])
 {
     
@@ -21,6 +22,7 @@ int main(int argc, char * argv[])
     alg_num = atoi(argv[2]);
     quanta= atoi(argv[3]);
     set_alg_enum(alg_num);
+    logFile = fopen("schedular.log", "w");   ;
     /*++++++++++++++++++++++Intializations+++++++++++++++++*/
     prss_completed=0;
     ready_priority_q=NULL;
@@ -127,7 +129,8 @@ void apply_hpf()
         }
         if(prss_completed==total_count_prss)
         {
-            killpg(getpgrp(), SIGINT);
+
+            schedular_is_done();
         }
         //sleep(1);
        
@@ -158,7 +161,7 @@ void apply_srtn()
     {
         if(prss_completed==total_count_prss)
         {
-            killpg(getpgrp(), SIGINT);
+            schedular_is_done();
 
         }
         if(!is_empty(&ready_priority_q))
@@ -194,6 +197,7 @@ void apply_srtn()
                 else
                 {
                     kill(prs_currently_running.prog_id, SIGSTOP);
+                    file_prss_stopped(prs_currently_running);
                     printf("process %d will paused now at time %d\n", prs_currently_running.identity, getClk());
                     fprintf(pFile, "process %d will paused now at time %d\n", prs_currently_running.identity, getClk());
                     prs_currently_running=prs;
@@ -231,6 +235,7 @@ void execute_process_srtn(process* prs)
         prs_currently_running=*prs;
         printf("process %d resumed at time %d\n", prs->identity, getClk());
         fprintf(pFile, "process %d resumed at time %d\n", prs->identity, getClk());
+        file_prss_resumed(*prs);
     }
 
 }
@@ -253,6 +258,7 @@ void prs_finished(process prs)
     fprintf(pFile, "process %d finished at time %d\n", prs.identity, getClk());
     printf("%d completed\n", prss_completed);
     fprintf(pFile, "%d completed\n", prss_completed);
+    file_prss_finished(prs);
 }
 void apply_rr()
 {
@@ -265,7 +271,7 @@ void apply_rr()
     {
         if(prss_completed==total_count_prss)
         {
-             killpg(getpgrp(), SIGINT);
+             schedular_is_done();
         }
         if(cq_is_empty() && get_remaining_time(prs_currently_running)==0)
         {
@@ -333,6 +339,7 @@ void cq_minus_1_sec(process *prs)
 void cq_suspend_process(process *prs)
 {
     fprintf(pFile, "prs %d stopped at time %d \n", prs->identity, getClk());
+    file_prss_stopped(*prs);
     kill(prs->prog_id, SIGSTOP);
     cq_enqueue(*prs);
 }
@@ -366,6 +373,7 @@ void fork_new_prs(process* prs)
         fprintf(pFile, "program id is updated to %d\n", pid);
         prs->prog_id=pid;
     }
+    file_prss_started(*prs);
 }
 
 
@@ -509,5 +517,50 @@ void sleep_1_sec()
     printf("Holla!!!!!!!\n");
 }
 
+int get_waiting_time(process prs)
+{
+    return getClk()-prs.arrival_time- prs.exec_time;
+}
+
+int get_turn_around_time(process prs)
+{
+   return prs.finish_time-prs.arrival_time;
+}
+
+float get_weighted_trn_arnd(process prs)
+{
+   return get_turn_around_time(prs)/prs.run_time;
+}
+
+void file_prss_started(process prs)
+{
+    //TODO make sure if i need to change arrival time, as some processes come to schedular little later
+    fprintf(logFile,"At time %d process %d started arr %d total %d remain %d wait %d\n" ,
+                getClk(),prs.identity,prs.arrival_time, prs.run_time, prs.run_time, get_waiting_time(prs));
+}
+
+void file_prss_stopped(process prs)
+{
+    fprintf(logFile,"At time %d process %d stopped arr %d total %d remain %d wait %d\n" ,
+                getClk(),prs.identity,prs.arrival_time, prs.run_time, get_remaining_time(prs),  get_waiting_time(prs));
+}
+
+void file_prss_resumed(process prs)
+{
+    fprintf(logFile,"At time %d process %d resumed arr %d total %d remain %d wait %d\n" ,
+                getClk(),prs.identity,prs.arrival_time, prs.run_time, get_remaining_time(prs),  get_waiting_time(prs));
+}
+
+void file_prss_finished(process prs)
+{
+    fprintf(logFile,"At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %f \n" ,
+                getClk(),prs.identity,prs.arrival_time, prs.run_time, 0,  get_waiting_time(prs), get_turn_around_time(prs),get_weighted_trn_arnd(prs) );
+}
+
+void schedular_is_done()
+{
+    fclose(logFile);
+    killpg(getpgrp(), SIGINT);
+}
 
 

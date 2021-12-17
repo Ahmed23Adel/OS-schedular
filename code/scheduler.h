@@ -139,4 +139,15 @@ void  interrupt_handler(int signum);
 
 void sleep_1_sec();
 
+int get_waiting_time(process prs);
+
+int get_turn_around_time(process prs);
+float get_weighted_trn_arnd(process prs);
+
+void file_prss_started(process prs);
+void file_prss_stopped(process prs);
+void file_prss_resumed(process prs);
+void file_prss_finished(process prs);
+
+void schedular_is_done();
 #endif
