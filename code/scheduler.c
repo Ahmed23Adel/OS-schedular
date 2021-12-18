@@ -2,7 +2,7 @@
 #include "scheduler.h"
 #include "data_structures/priority_queue.h"
 #include "data_structures/circular_queue.h"
-
+#include "output_utils.h"
 
 node_priority* ready_priority_q;
 process prs_to_run;
@@ -259,6 +259,7 @@ void prs_finished(process prs)
     printf("%d completed\n", prss_completed);
     fprintf(pFile, "%d completed\n", prss_completed);
     file_prss_finished(prs);
+    add_new_finished_pros(prs);
 }
 void apply_rr()
 {
@@ -560,6 +561,7 @@ void file_prss_finished(process prs)
 void schedular_is_done()
 {
     fclose(logFile);
+    do_calculations();
     killpg(getpgrp(), SIGINT);
 }
 
