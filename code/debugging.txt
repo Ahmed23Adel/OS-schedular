@@ -1,24 +1,115 @@
-Process 1 received at time: 3 
-program id is updated to 13448
-process 1 started at 3 
-Process 2 received at time: 6 
-Process 3 received at time: 8 
-process 1 finished at 12 
-process 1 finished at time 12
+current time : 2
+rem_quanta =3 
+Process 1 received at time: 3 , rem time is 10
+current time : 3
+rem_quanta =2 
+process 1 start at time 3
+program id is updated to 4367
+run top, process 1 started at time3 
+current time : 4
+rem_quanta =3 
+current time : 5
+rem_quanta =2 
+Process 2 received at time: 6 , rem time is 4
+current time : 6
+rem_quanta =1 
+current time : 7
+rem_quanta =0 
+remtime =0 
+else 
+prs 1 stopped at time 7 
+process 2 start at time 7
+program id is updated to 4385
+run top, process 2 started at time7 
+Process 3 received at time: 8 , rem time is 3
+current time : 8
+rem_quanta =3 
+current time : 9
+rem_quanta =2 
+current time : 10
+rem_quanta =1 
+current time : 10
+rem_quanta =0 
+remtime =0 
+process 2 finished at time 10
 1 completed
-program id is updated to 13638
-process 3 started at 12 
-process 3 finished at 16 
-process 3 finished at time 16
+process 1 resumed at time 10
+run top, process 1 started at time10 
+current time : 12
+rem_quanta =3 
+current time : 13
+rem_quanta =2 
+current time : 14
+rem_quanta =1 
+current time : 14
+rem_quanta =0 
+remtime =0 
+else 
+prs 1 stopped at time 15 
+process 3 start at time 15
+program id is updated to 4429
+run top, process 3 started at time15 
+current time : 16
+rem_quanta =3 
+current time : 17
+rem_quanta =2 
+Process 4 received at time: 18 , rem time is 20
+current time : 18
+rem_quanta =1 
+process 3 finished at time 18
 2 completed
-program id is updated to 13651
-process 2 started at 16 
-Process 4 received at time: 18 
-process 2 finished at 20 
-process 2 finished at time 20
+process 1 resumed at time 18
+run top, process 1 started at time18 
+current time : 18
+rem_quanta =3 
+current time : 20
+rem_quanta =2 
+process 1 finished at time 20
 3 completed
-program id is updated to 13679
-process 4 started at 20 
-process 4 finished at 39 
-process 4 finished at time 39
+process 4 start at time 20
+program id is updated to 4463
+run top, process 4 started at time20 
+current time : 20
+rem_quanta =3 
+current time : 21
+rem_quanta =2 
+current time : 23
+rem_quanta =1 
+current time : 24
+rem_quanta =0 
+current time : 25
+rem_quanta =-1 
+current time : 26
+rem_quanta =3 
+current time : 27
+rem_quanta =2 
+current time : 27
+rem_quanta =1 
+current time : 28
+rem_quanta =0 
+current time : 30
+rem_quanta =-1 
+current time : 31
+rem_quanta =3 
+current time : 32
+rem_quanta =2 
+current time : 33
+rem_quanta =1 
+current time : 34
+rem_quanta =0 
+current time : 35
+rem_quanta =-1 
+current time : 35
+rem_quanta =3 
+current time : 37
+rem_quanta =2 
+current time : 38
+rem_quanta =1 
+current time : 39
+rem_quanta =0 
+current time : 40
+rem_quanta =-1 
+process 4 finished at time 40
 4 completed
+current time : 41
+rem_quanta =3 

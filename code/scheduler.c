@@ -36,6 +36,8 @@ int main(int argc, char * argv[])
         apply_srtn();
     if(chosen_alg ==RR)
         apply_rr();
+    if(chosen_alg ==SJF)
+        apply_sjf();
 
     destroyClk(true);
 }
@@ -53,6 +55,8 @@ void set_alg_enum(int alg_num)
         chosen_alg=SRTN;
     if (alg_num==2)
         chosen_alg=RR;
+    if (alg_num==3)
+        chosen_alg=SJF;
 }
 
 void rec_handler(int signum)
@@ -66,6 +70,8 @@ void rec_handler(int signum)
             insert_prs_to_srtn(tmp_p);
         if(chosen_alg ==RR)
             insert_prs_to_rr(tmp_p);
+        if(chosen_alg ==SJF)
+            insert_prs_to_sjf(tmp_p);
 
         tmp_p=rec_one_procss();
     }
@@ -92,6 +98,14 @@ void insert_prs_to_rr(process prs)
     fprintf(pFile, "Process %d received at time: %d , rem time is %d\n", prs.identity, getClk(), get_remaining_time(prs));
     cq_enqueue(prs);
 }
+
+void insert_prs_to_sjf(process prs)
+{
+    printf("Process %d received at time: %d \n", prs.identity, getClk());
+    fprintf(pFile, "Process %d received at time: %d \n", prs.identity, getClk());
+    push_to_pri_q(&ready_priority_q, prs, prs.run_time);
+}
+
 int get_remaining_time(process prs)
 {
     return prs.run_time-prs.exec_time;
@@ -352,6 +366,28 @@ void cq_run_top()
     rem_quanta=quanta;
     execute_process_srtn(&prs_currently_running);
     fprintf(pFile, "run top, process %d started at time%d \n",prs_currently_running.identity, getClk() );
+}
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SJF++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+void apply_sjf()
+{
+  while(true)
+    {
+        if(!is_empty(&ready_priority_q))
+        {
+            prs_to_run=peek(&ready_priority_q);
+            execute_process_hpf(prs_to_run);
+            prs_finished(prs_to_run);
+            pop_at_id(&ready_priority_q, prs_to_run.identity);
+        }
+        if(prss_completed==total_count_prss)
+        {
+
+            schedular_is_done();
+        }
+        //sleep(1);
+       
+    }
 }
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++Common++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 void fork_new_prs(process* prs)

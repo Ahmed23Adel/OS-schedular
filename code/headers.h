@@ -26,7 +26,7 @@ typedef short bool;
 int * shmaddr;                 //
 //===============================
 
-typedef enum scheduling_algorithms_ {HPF, SRTN, RR } scheduling_algorithms;
+typedef enum scheduling_algorithms_ {HPF, SRTN, RR,SJF } scheduling_algorithms;
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++Process related data fields and functions+++++++++++++++++++++++++++++++++++++++++*/
 

@@ -44,7 +44,7 @@ scheduling_algorithms ask_for_alg()
     answer = -1;
     while(!(answer ==1 || answer ==2 | answer ==3))
     {
-        printf("Please specifiy an algorithm for sceduling. \n 1: HPF \n 2: SRTN\n 3: RR \n");
+        printf("Please specifiy an algorithm for sceduling. \n 1: HPF \n 2: SRTN\n 3: RR \n 4: SJF \n");
         scanf("%i", &answer);
 
         switch (answer)
@@ -63,6 +63,10 @@ scheduling_algorithms ask_for_alg()
             scanf("%i", &quanta);
             printf("Working with RR, Round robin with quanta equal to %d\n", quanta);
             return RR;
+            break;
+        case 4:
+            printf("Working with SJF, Shortest job first \n");
+            return SJF;
             break;
         
         default:
@@ -206,6 +210,8 @@ int get_algo_num()
         return 1;
     if(chosen_alg ==RR)
         return 2;
+    if(chosen_alg ==SJF)
+        return 3;
 
 
 }

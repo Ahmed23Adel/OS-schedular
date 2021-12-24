@@ -53,11 +53,16 @@ void apply_srtn();
  *  @return Void.
  */
 void apply_rr();
+/** @brief apply shortes job first
+ *  @return Void.
+ */
+void apply_sjf();
 /** @brief recieve one single process from msg queue
  *          if nothing has come it returns process with arrival time = -1
  *          as indication of error
  *  @return process .
  */
+
 process rec_one_procss();
 
 /** @brief insert the new coming process to appropiate data strucutre for HPF
@@ -79,6 +84,10 @@ void insert_prs_to_srtn(process prs);
  *  @return int .
  */
 void insert_prs_to_rr(process prs);
+/** @brief insert the new coming process to appropiate data strucutre for SJF
+ *  @return int .
+ */
+void insert_prs_to_sjf(process prs);
 
 /** @brief fires a new process 
  *  @return int .
