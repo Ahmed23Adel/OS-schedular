@@ -4,18 +4,36 @@
 #include "schedular_parent.h"
 #include "../data_structures/circular_queue.h"
 
+/** @brief apply round robin
+ *  @return Void.
+ */
 void rr_apply();
+
+/** @brief run the top of circular queue
+ *  @return void .
+ */
+void rr_cq_run_top();
+
+/** @brief suspend process, just sends SIGSTOP, and enqueu the process again to circular queue
+ *  @return void .
+ */
+void rr_cq_suspend_process(process *prs);
+
+/** @brief fires a new process 
+ *  @return int .
+ */
+void rr_execute_process(process* prs);
+
+/** @brief like minus_1_sec but it does on data strucutre related to RR
+ *          circular queue 
+ *  @return void .
+ */
+void rr_cq_minus_1_sec(process *prs);
 
 
 process prs_currently_running;
 int quanta;
 int rem_quanta;
-
-void rr_apply();
-void rr_cq_run_top();
-void rr_cq_suspend_process(process *prs);
-void rr_execute_process(process* prs);
-void rr_cq_minus_1_sec(process *prs);
 
 void rr_insert_prs(process prs)
 {
@@ -67,21 +85,17 @@ void rr_apply()
             {
                 if(rem_quanta==0)
                 {
-                    //fprintf(pFile, "remtime =0 \n");
                     if(parent_get_remaining_time(prs_currently_running)==0)
                     {
                         //it should finish now
                         parent_prs_finished(prs_currently_running);
-                        //prs_currently_running=create_process(-1,-1,-1,-1);
                         rr_cq_run_top();
                     }
                     else
                     {
-                        //fprintf(pFile, "else \n");
                         //quanta is finihsed but process still needs some time.
                         rr_cq_suspend_process(&prs_currently_running);
                         rr_cq_run_top();
-                        //prs_currently_running=create_process(-1,-1,-1,-1);
                     }
                 }
                 else if(parent_get_remaining_time(prs_currently_running)==0)
@@ -89,17 +103,15 @@ void rr_apply()
                     //prs finished before qunata finishes
                     parent_prs_finished(prs_currently_running);
                     rr_cq_run_top();
-                    //prs_currently_running=create_process(-1,-1,-1,-1);
                 }
 
             }
         }
         
         parent_sleep_1_sec();
-        //fprintf(pFile, "current time : %d\n", getClk());
-        //printf("current time : %d\n", getClk());
+        fprintf(pFile, "current time : %d\n", getClk());
         rem_quanta=rem_quanta-1;
-        //fprintf(pFile, "rem_quanta =%d \n", rem_quanta);
+        fprintf(pFile, "rem_quanta =%d \n", rem_quanta);
         rr_cq_minus_1_sec(&prs_currently_running);
     }    
 }
@@ -110,7 +122,7 @@ void rr_cq_run_top()
     prs_currently_running=cq_dequeue();
     rem_quanta=quanta;
     rr_execute_process(&prs_currently_running);
-   // fprintf(pFile, "run top, process %d started at time%d \n",prs_currently_running.identity, getClk() );
+    fprintf(pFile, "run top, process %d started at time%d \n",prs_currently_running.identity, getClk() );
 }
 
 void rr_cq_suspend_process(process *prs)
@@ -130,8 +142,7 @@ void rr_execute_process(process* prs)
 {
     if(prs->prog_id ==-1)
     {
-        printf("process %d start at time %d\n", prs->identity, getClk());
-       // fprintf(pFile, "process %d start at time %d\n", prs->identity, getClk());
+        fprintf(pFile, "process %d start at time %d\n", prs->identity, getClk());
         parent_fork_new_prs(prs);
         prs_currently_running=*prs;
     }
@@ -140,8 +151,7 @@ void rr_execute_process(process* prs)
         //forked and just needs to continue
         kill(prs->prog_id, SIGCONT); 
         prs_currently_running=*prs;
-        printf("process %d resumed at time %d\n", prs->identity, getClk());
-       // fprintf(pFile, "process %d resumed at time %d\n", prs->identity, getClk());
+        fprintf(pFile, "process %d resumed at time %d\n", prs->identity, getClk());
         parent_file_prss_resumed(*prs);
     }
 

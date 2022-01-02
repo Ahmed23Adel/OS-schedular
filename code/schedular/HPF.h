@@ -5,15 +5,29 @@
 #include "../data_structures/priority_queue.h"
 
 
-node_priority* ready_priority_q;
 
+/** @brief insert the new coming process to appropiate data strucutre for HPF
+ *  @return int .
+ */
 void insert_prs_to_hpf(process prs);
+
+/** @brief You should call thie function to run hpf
+ *  @return void .
+ */
 void init_hpf(int total_prss);
+
+/** @brief fires a new process 
+ *  @return int .
+ */
 void hpf_execute_process(process prs);
+
+/** @brief apply hightest priority first
+ *  @return Void.
+ */
 void hpf_apply();
 
-//hpf_insert_prs
-//insert_prs_to_hpf
+node_priority* ready_priority_q;
+
 void hpf_insert_prs(process prs)
 {
     parent_prss_rec(prs);

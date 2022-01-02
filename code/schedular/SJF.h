@@ -3,8 +3,25 @@
 
 #include "schedular_parent.h"
 #include "../data_structures/priority_queue.h"
+/** @brief apply shortes job first
+ *  @return Void.
+ */
 void sjf_apply();
+
+/** @brief fires a new process 
+ *  @return int .
+ */
 void sjf_execute_process(process prs);
+/** @brief insert the new coming process to appropiate data strucutre for SJF
+ *  @return int .
+ */
+void sjf_insert_prs_to(process prs);
+
+/** @brief You should call thie function to run sjf
+ *  @return void .
+ */
+void init_sjf(int total_prss);
+
 
 node_priority* ready_priority_q;
 

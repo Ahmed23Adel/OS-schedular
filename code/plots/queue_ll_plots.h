@@ -48,7 +48,6 @@ void plots_insert_begin(int x, int y)
     if(temp==NULL)
     {
         //TODO delete that line after debugging
-        printf("nOut of Memory Space:n");
         return;
     }
     temp->x=x;
@@ -79,7 +78,6 @@ void plots_insert_end(int x, int y)
     if(temp==NULL)
     {
         //TODO delete that line after debugging
-        printf("nOut of Memory Space:n");
         return;
     }
     temp->x=x;

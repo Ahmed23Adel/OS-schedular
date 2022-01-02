@@ -175,7 +175,6 @@ void parent_file_prss_started(process prs)
     //TODO make sure if i need to change arrival time, as some processes come to schedular little later
     fprintf(logFile,"At time %d process %d started arr %d total %d remain %d wait %d\n" ,
                 getClk(),prs.identity,prs.arrival_time, prs.run_time, prs.run_time, parent_get_waiting_time(prs));
-    printf("for plots x:%d y:%d \n", getClk(), prs.identity);
     plots_insert_end(getClk(), prs.identity);
 }
 
@@ -240,7 +239,7 @@ void parent_sleep_1_sec()
     signal(SIGUSR1, rec_handler);
     signal(SIGINT, interrupt_handler);
     rec_handler(-1);
-    printf("completed: %d\n" ,prss_completed);
+    //printf("completed: %d\n" ,prss_completed);
 }
 
 #endif
