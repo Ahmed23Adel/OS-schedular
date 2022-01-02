@@ -15,6 +15,7 @@
         "srtn.h": "c",
         "rr.h": "c",
         "pbplots.h": "c",
-        "supportlib.h": "c"
+        "supportlib.h": "c",
+        "cmath": "c"
     }
 }

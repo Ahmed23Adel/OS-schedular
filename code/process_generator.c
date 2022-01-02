@@ -91,7 +91,7 @@ void _read_input_file()
 void _read_each_row(FILE * fPointer)
 {
     char singleLine[BUFSIZ];
-    int ID, arrival, runtime, priority;
+    int ID, arrival, runtime, priority, memsize;
     _skip_first_line(&fPointer,singleLine);//To skip first line
 
     while (fgets(singleLine, sizeof singleLine, fPointer) != NULL)
@@ -100,9 +100,11 @@ void _read_each_row(FILE * fPointer)
             && sscanf(singleLine, "%*d\t%d", &arrival) == 1 
             && sscanf(singleLine, "%*d\t%*d\t%d", &runtime) == 1 
             && sscanf(singleLine, "%*d\t%*d\t%*d\t%d", &priority) == 1
+            && sscanf(singleLine, "%*d\t%*d\t%*d\t%*d\t%d", &memsize) == 1
             )
         {
-            push_to_pcb(&head,create_process(ID,arrival,runtime,priority), arrival);
+            push_to_pcb(&head,create_process(ID,arrival,runtime,priority,memsize), arrival);
+            //printf("%d\n",memsize);
             _total_count++;
 
         }

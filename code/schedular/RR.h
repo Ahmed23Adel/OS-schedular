@@ -56,7 +56,7 @@ void rr_apply()
     
     initClk();
     printf("I'm in RR at time %d \n", getClk());
-    prs_currently_running=create_process(-1,-1,-1,-1);//Indication nothing started yet
+    prs_currently_running=create_process(-1,-1,-1,-1,-1);//Indication nothing started yet
     rem_quanta=quanta;
     while(true)
     {
@@ -67,7 +67,7 @@ void rr_apply()
         if(cq_is_empty() && parent_get_remaining_time(prs_currently_running)==0)
         {
             parent_prs_finished(prs_currently_running);
-            prs_currently_running=create_process(-1,-1,-1,-1);
+            prs_currently_running=create_process(-1,-1,-1,-1,-1);
         }
         if(cq_is_empty()&& rem_quanta == -1)
         {

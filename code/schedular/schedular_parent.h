@@ -5,6 +5,7 @@
 #include "../data_structures/priority_queue.h"
 #include "../output_utils.h"
 #include "../plots/queue_ll_plots.h"
+#include "../mem/linked_mem.h"
 
 FILE * pFile;
 FILE *logFile;
@@ -96,6 +97,9 @@ void parent_schedular_is_done(process final_prs);
  */
 void parent_sleep_1_sec();
 
+void init_mem();
+void allocate_mem(process *prs);
+
 void init_sch_parent(int total_prss)
 {
 
@@ -104,6 +108,7 @@ void init_sch_parent(int total_prss)
     prss_completed=0;
     total_count_prss=total_prss;
     init_plots();
+    init_mem();
 
 }
 
@@ -150,6 +155,8 @@ int parent_get_remaining_time(process prs)
 
 void parent_fork_new_prs(process* prs)
 {
+    allocate_mem(prs);
+
     int pid;
     pid=fork();
     if(pid==0)
@@ -173,29 +180,31 @@ void parent_fork_new_prs(process* prs)
 void parent_file_prss_started(process prs)
 {
     //TODO make sure if i need to change arrival time, as some processes come to schedular little later
-    fprintf(logFile,"At time %d process %d started arr %d total %d remain %d wait %d\n" ,
-                getClk(),prs.identity,prs.arrival_time, prs.run_time, prs.run_time, parent_get_waiting_time(prs));
+    fprintf(logFile,"At time %d process %d started arr %d total %d remain %d wait %d from %d to %d \n" ,
+                getClk(),prs.identity,prs.arrival_time, prs.run_time, prs.run_time, parent_get_waiting_time(prs), prs.memsize_start, prs.memsize_end);
     plots_insert_end(getClk(), prs.identity);
 }
 
 void parent_file_prss_stopped(process prs)
 {
-    fprintf(logFile,"At time %d process %d stopped arr %d total %d remain %d wait %d\n" ,
-                getClk(),prs.identity,prs.arrival_time, prs.run_time, parent_get_remaining_time(prs),  parent_get_waiting_time(prs));
+    fprintf(logFile,"At time %d process %d stopped arr %d total %d remain %d wait %d from %d to %d \n" ,
+                getClk(),prs.identity,prs.arrival_time, prs.run_time, parent_get_remaining_time(prs),  parent_get_waiting_time(prs),prs.memsize_start, prs.memsize_end);
 }
 
 
 void parent_file_prss_resumed(process prs)
 {
-    fprintf(logFile,"At time %d process %d resumed arr %d total %d remain %d wait %d\n" ,
-                getClk(),prs.identity,prs.arrival_time, prs.run_time, parent_get_remaining_time(prs),  parent_get_waiting_time(prs));
+    fprintf(logFile,"At time %d process %d resumed arr %d total %d remain %d wait %d from %d to %d\n" ,
+                getClk(),prs.identity,prs.arrival_time, prs.run_time, parent_get_remaining_time(prs),  parent_get_waiting_time(prs),prs.memsize_start, prs.memsize_end);
     plots_insert_end(getClk(), prs.identity);
 }
 
 void parent_file_prss_finished(process prs)
 {
-    fprintf(logFile,"At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f \n" ,
-                getClk(),prs.identity,prs.arrival_time, prs.run_time, 0,  parent_get_waiting_time(prs), parent_get_turn_around_time(prs),parent_get_weighted_trn_arnd(prs) );
+    fprintf(logFile,"At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f from %d to %d\n" ,
+                getClk(),prs.identity,prs.arrival_time, prs.run_time, 0,  parent_get_waiting_time(prs), parent_get_turn_around_time(prs),parent_get_weighted_trn_arnd(prs) ,prs.memsize_start, prs.memsize_end);
+
+    
 }
 
 void parent_prs_finished(process prs)
@@ -210,6 +219,15 @@ void parent_prs_finished(process prs)
     fprintf(pFile, "%d completed\n", prss_completed);
     parent_file_prss_finished(prs);
     add_new_finished_pros(prs);
+    
+    //mem
+    printf("%d %d \n",prs.memsize_start,prs.memsize_end);
+    //transfer_node(&p_start, &h_start, prs.memsize_start,prs.memsize_end);
+    mem_insert_hole(prs.memsize_start,prs.memsize_end);
+
+    mem_display(&h_start);
+    mem_display(&p_start);
+    printf("prs  finished \n");
 }
 
 
@@ -242,4 +260,36 @@ void parent_sleep_1_sec()
     //printf("completed: %d\n" ,prss_completed);
 }
 
+void init_mem()
+{
+    printf("max size is %d \n", ((int)MAX_SIZE) -1);
+    mem_insert_begin(&h_start, 0,((int)MAX_SIZE) -1);
+    if(h_start==NULL)
+        printf("HSTART IS NULL \n");
+    else
+        printf("HSTART IS NOT NOT NOT NOT NULL \n");
+}
+
+void allocate_mem(process *prs)
+{
+    
+    mem_display(&h_start);
+    printf("wanted memory of %d \n",prs->memsize);
+    divide_till_size(&h_start, prs->memsize);
+    mem_display(&h_start);
+    //get limits and put it into prs
+    int *x,*y;
+    printf("HOla!!\n");
+    printf("%d, %d \n", h_start->start,h_start->end);
+    get_exact_limits(&h_start, prs->memsize,&x,&y);
+    printf("ooooh \n");
+    //printf("prs %d has start %d and end %d \n", prs.identity,*x, *y);
+    prs->memsize_start=*x;
+    prs->memsize_end=*y;
+    printf("prs %d has start %d and end %d\n", prs->identity, prs->memsize_start, prs->memsize_end);
+    transfer_node(&h_start,&p_start,  *x,*y);
+
+    mem_display(&h_start);
+    mem_display(&p_start);
+}
 #endif

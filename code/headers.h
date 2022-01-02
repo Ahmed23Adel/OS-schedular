@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <math.h>
 
 typedef short bool;
 #define true 1
@@ -20,6 +21,8 @@ typedef short bool;
 
 #define SHKEY 300
 
+
+#define MAX_SIZE 1024 //MAX SIZE for memory in bytes
 
 ///==============================
 //don't mess with this variable//
@@ -43,6 +46,9 @@ typedef struct process_
     int         exec_time;      /*Exection time. time already spent on CPU(Time elapsed)*/
     int         finish_time;    /*time at which algorithm finish*/
     int         priority;       /*Priority used mainly in HPF algorithm*/
+    int         memsize;        /*Memory size needed for that process*/
+    int         memsize_start;  /*start of memory for that process*/
+    int         memsize_end;    /*end of memory for that process*/    
     /*
         The waiting time and remaining time should are to be caluculed in fuctions
         Remaining time= run_time - exec_time
@@ -51,7 +57,14 @@ typedef struct process_
 } process;
 
 
-process create_process(int identity,int arrival_time, int runtime, int priority)
+int get_exact_mem_size(int size)
+{
+    //printf("real size is %d and now is %f\n",size, pow(2,ceil(log10(size)/log10(2))));
+    return ((int)pow(2,ceil(log10(size)/log10(2))));
+}
+
+
+process create_process(int identity,int arrival_time, int runtime, int priority, int memsize)
 {
     process *tmp_p;
     tmp_p=(process*)malloc(sizeof *tmp_p); /*Intializing the variable*/
@@ -64,6 +77,9 @@ process create_process(int identity,int arrival_time, int runtime, int priority)
     tmp_p->exec_time=0;         /*As it didn't run at all*/
     tmp_p->finish_time=-1;      /*should be edited later to represent exact finish time.*/
     tmp_p->priority=priority;
+    tmp_p->memsize=get_exact_mem_size(memsize);
+    tmp_p->memsize_start=-1;
+    tmp_p->memsize_end=-1;
     return *tmp_p;
 }
 

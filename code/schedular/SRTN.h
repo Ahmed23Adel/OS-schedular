@@ -49,7 +49,7 @@ void init_srtn(int total_prss)
 
 void srtn_apply()
 {
-    prs_currently_running=create_process(-1,-1,-1,-1);//Indication nothing started yet
+    prs_currently_running=create_process(-1,-1,-1,-1,-1);//Indication nothing started yet
     while(true)
     {
         if(prss_completed==total_count_prss)
@@ -78,7 +78,7 @@ void srtn_apply()
 
                     parent_prs_finished(prs_currently_running);
                     pop_at_id(&ready_priority_q, prs_currently_running.identity);
-                    prs_currently_running=create_process(-1,-1,-1,-1);//Indication nothing is running now yet
+                    prs_currently_running=create_process(-1,-1,-1,-1,-1);//Indication nothing is running now yet
                     
                     continue;
                 }

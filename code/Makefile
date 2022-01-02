@@ -2,10 +2,10 @@ build:
 	gcc data_structures/priority_queue.h
 	gcc pcb.h
 	gcc headers.h
-	gcc process_generator.c -o process_generator.out
-	gcc clk.c -o clk.out
+	gcc process_generator.c -o process_generator.out -lm
+	gcc clk.c -o clk.out -lm
 	gcc schedular/scheduler.c -o scheduler.out -lm
-	gcc process.c -o process.out
+	gcc process.c -o process.out -lm
 	gcc test_generator.c -o test_generator.out
 	
 clean:
