@@ -1,7 +1,8 @@
 #ifndef scheduler_H
 #define scheduler
-#include "headers.h"
-#include "data_structures/priority_queue.h"
+#include "../headers.h"
+#include "../data_structures/priority_queue.h"
+
 
 
 int total_count_prss;

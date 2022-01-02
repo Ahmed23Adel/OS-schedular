@@ -7,6 +7,14 @@
         "pcb.h": "c",
         "stdio.h": "c",
         "wordsize.h": "c",
-        "sigevent-consts.h": "c"
+        "sigevent-consts.h": "c",
+        "schedular_parent.h": "c",
+        "circular_queue.h": "c",
+        "output_utils.h": "c",
+        "hpf.h": "c",
+        "srtn.h": "c",
+        "rr.h": "c",
+        "pbplots.h": "c",
+        "supportlib.h": "c"
     }
 }
