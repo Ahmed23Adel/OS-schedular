@@ -214,6 +214,37 @@ void mem_delete_end(mem_node *start)
     }
 }
 
+void reconsturct_holes()
+{
+     //remove from p
+    mem_node* tmp=h_start;
+    mem_node* tmp_before=NULL;
+    while(tmp != NULL)
+    {
+        if(tmp->next != NULL)
+        {
+            
+            mem_node* tmp_next=tmp->next;
+            if((tmp->end+1)==tmp_next->start)
+            {
+                int total_sum_size=tmp->end-tmp->start+1 +tmp_next->end-tmp_next->start+1;
+                float log2total=log10(total_sum_size)/log10(2);
+                if(ceilf(log2total) == log2total)
+                {
+                    tmp->end=tmp_next->end;
+                    tmp->next=tmp->next->next;
+                }
+            }
+
+            
+        }
+       
+        tmp_before=tmp;
+        tmp=tmp->next;
+    }
+
+}
+
 void mem_insert_hole(int x, int y)
 {
     //remove from p
@@ -229,6 +260,7 @@ void mem_insert_hole(int x, int y)
             {
                 printf("IIIII should transfer now1 \n");
                 p_start =tmp->next;
+                reconsturct_holes();
                 break;
             }
             tmp_before->next=tmp->next;
@@ -244,11 +276,13 @@ void mem_insert_hole(int x, int y)
     {
         printf("insert hole0\n");
         h_start->start=x;
+        reconsturct_holes();
         return;
 
     }
     if(y==((int)MAX_SIZE))
     {
+        printf("insert hole1\n");
         mem_node* tmp=h_start;
         while(tmp->next != NULL)
         {
@@ -257,37 +291,63 @@ void mem_insert_hole(int x, int y)
         }
         tmp->end=y;
         printf("insert hole1\n");
+        reconsturct_holes();
         return;
     }
     else
     {
         mem_node* tmp=h_start;
-        while(tmp->next != NULL)
+        printf("insert hole2\n");////////////
+        /*while(tmp->next != NULL)
         {
-            if(tmp->end==x)
+            printf("insert hole22\n");
+            if(tmp->end==x+1)
             {
                 tmp->end=y;
-                printf("insert hole2\n");
+                printf("insert hole3\n");
+                reconsturct_holes();
                 return;
             }
-            else if(y == tmp->start)
+            else if(y+1 == tmp->start)
             {
+                printf("y == tmp->start");
                 tmp->start=x;
+                reconsturct_holes();
                 return;
             }
             tmp=tmp->next;
-        }
+        }*/
         //not even found
-        mem_node* tmp2=h_start->next;
-        mem_node* tmp_before2=h_start;
-        while(tmp2->next != NULL)
+        mem_node* tmp2=h_start;
+        mem_node* tmp_before2=NULL;
+        while(tmp2 != NULL)
         {
+            printf("insert hole4\n");
+            if(tmp_before2 == NULL)
+            {
+                printf("insert hole44\n");
+                if(y <= tmp->start)
+                {
+                    printf("insert hole444\n");
+                    mem_node *n;
+                    n=(mem_node*)malloc(sizeof(n));
+                    n->next=h_start;
+                    h_start=n;
+                    n->start=x;
+                    n->end=y;
+                    reconsturct_holes();
+                    return;
+                }
+            }
             if(tmp_before2->end<x && tmp2->start>x)
             {
+                printf("insert hole5\n");
                 mem_node *n;
                 n=(mem_node*)malloc(sizeof(n));
                 tmp_before2->next=n;
                 n->next=tmp2;
+                reconsturct_holes();
+                return;
             }
             tmp2=tmp2->next;
         }
@@ -349,7 +409,7 @@ void divide_till_size(mem_node **start,int size)
        n1=(mem_node*)malloc(sizeof(n1));
        n2=(mem_node*)malloc(sizeof(n2));
        n1->start=tmp->start;
-       n1->end=((int)floor((tmp->end-tmp->start)/2));
+       n1->end=((int)floor((tmp->end-tmp->start)/2))+tmp->start;
 
        n2->start=n1->end+1;
        n2->end=tmp->end;

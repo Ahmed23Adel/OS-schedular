@@ -223,6 +223,7 @@ void parent_prs_finished(process prs)
     //mem
     printf("%d %d \n",prs.memsize_start,prs.memsize_end);
     //transfer_node(&p_start, &h_start, prs.memsize_start,prs.memsize_end);
+    mem_display(&h_start);
     mem_insert_hole(prs.memsize_start,prs.memsize_end);
 
     mem_display(&h_start);
@@ -274,7 +275,7 @@ void allocate_mem(process *prs)
 {
     
     mem_display(&h_start);
-    printf("wanted memory of %d \n",prs->memsize);
+    printf("prs %d wanted memory of %d \n",prs->identity,prs->memsize);
     divide_till_size(&h_start, prs->memsize);
     mem_display(&h_start);
     //get limits and put it into prs

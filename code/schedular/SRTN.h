@@ -52,8 +52,10 @@ void srtn_apply()
     prs_currently_running=create_process(-1,-1,-1,-1,-1);//Indication nothing started yet
     while(true)
     {
+        //printf("prss completed %d, and total count is %d \n",prss_completed,total_count_prss);
         if(prss_completed==total_count_prss)
         {
+            printf("I should be completed now~!!\n");
             parent_schedular_is_done(prs_currently_running);
 
         }
@@ -77,6 +79,7 @@ void srtn_apply()
                     fprintf(pFile, "process %d finished at time %d \n", prs_currently_running.identity, getClk());
 
                     parent_prs_finished(prs_currently_running);
+                    printf("Process completed is %d", prss_completed);
                     pop_at_id(&ready_priority_q, prs_currently_running.identity);
                     prs_currently_running=create_process(-1,-1,-1,-1,-1);//Indication nothing is running now yet
                     
