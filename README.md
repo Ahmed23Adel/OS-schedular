@@ -39,4 +39,6 @@ and we provided at the end of terminal points to be plotted by any software so t
 
 ![example1](https://user-images.githubusercontent.com/69484554/154486536-996c60c9-f094-442a-a828-2b2932eb16ed.png)
 
+of course we used C for that program
+
 
